@@ -620,13 +620,13 @@
     align-items: center;
     gap: 8px;
     border-bottom: 1px solid #e8ecf2;
-    padding: 2.5px 6px;
+    padding: 1px 6px;
   }
 
   .alpha-row:nth-child(even) { background: #f5f7fb; }
 
   .alpha-name {
-    font-size: 9pt;
+    font-size: 8pt;
     font-weight: 700;
     color: #0f1b2d;
     white-space: nowrap;
@@ -635,13 +635,13 @@
   }
 
   .alpha-team {
-    font-size: 7.5pt;
+    font-size: 6.5pt;
     color: #3a567a;
     font-weight: 700;
   }
 
   .alpha-assignment {
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #444;
     white-space: nowrap;
     text-align: right;
@@ -736,7 +736,7 @@
         </select>
       </div>
       <div class="field">
-        <label>Tournament Name Override</label>
+        <label>Tourney Name Override</label>
         <input type="text" id="tourneyName" placeholder="(auto-detected)">
       </div>
       <div class="field">
@@ -937,7 +937,7 @@ function generateSlips() {
     // Alpha lookup sheet for this section (may be multiple pages)
     if (includeAlpha) {
       const alphaPlayers = sec.pairings.length * 2 + sec.byes.length;
-      const alphaPageCount = Math.ceil(alphaPlayers / 32);
+      const alphaPageCount = Math.ceil(alphaPlayers / 48);
       pagesDiv.appendChild(renderAlphaSheet(sec, roundLabel));
       totalPages += alphaPageCount;
     }
@@ -1142,8 +1142,8 @@ function renderAlphaSheet(sec, roundLabel) {
     return lastName(a.name).localeCompare(lastName(b.name));
   });
 
-  // ~32 rows fit safely per page (accounts for header, col-header, footer, row padding)
-  const ROWS_PER_PAGE = 32;
+  // ~48 rows fit per page with compact row height
+  const ROWS_PER_PAGE = 48;
   const totalPages = Math.ceil(players.length / ROWS_PER_PAGE);
 
   // Return a fragment containing one or more pages
