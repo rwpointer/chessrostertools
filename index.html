@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwissSys Pairing Slip Generator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap');
 
   :root {
     --ink: #1a1208;
@@ -92,7 +92,6 @@
     flex-shrink: 0;
   }
 
-  /* Drop Zone */
   .drop-zone {
     border: 2px dashed var(--rule);
     border-radius: 4px;
@@ -121,7 +120,6 @@
   .file-info.visible { display: flex; }
   .file-info .fn { font-weight: 600; font-size: 13px; color: var(--green); }
 
-  /* Section selector */
   .section-list { display: flex; flex-direction: column; gap: 8px; }
   .section-item {
     display: flex;
@@ -139,16 +137,8 @@
   .section-item label { cursor: pointer; flex: 1; }
   .sec-name { font-weight: 600; color: var(--board-dark); font-size: 14px; }
   .sec-meta { font-size: 12px; color: var(--board-medium); margin-top: 2px; }
-  .sec-badge {
-    background: var(--board-dark);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 10px;
-  }
+  .sec-badge { background: var(--board-dark); color: white; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
 
-  /* Settings row */
   .settings-row { display: flex; gap: 16px; flex-wrap: wrap; }
   .field { flex: 1; min-width: 140px; }
   .field label { display: block; font-size: 12px; font-weight: 700; color: var(--board-medium); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -161,7 +151,6 @@
   }
   .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
 
-  /* Buttons */
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .btn {
     padding: 11px 24px;
@@ -175,8 +164,6 @@
   .btn-dark:hover:not(:disabled) { background: var(--board-medium); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(74,55,40,0.25); }
   .btn-gold { background: var(--gold); color: white; }
   .btn-gold:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(200,145,42,0.3); }
-  .btn-green { background: var(--green); color: white; }
-  .btn-green:hover:not(:disabled) { background: #3d7a34; transform: translateY(-1px); }
 
   .status {
     padding: 10px 14px; border-radius: 3px; font-size: 13px; font-weight: 500;
@@ -185,130 +172,186 @@
   .status.ok { background: #f0f7ef; border: 1px solid #b8d4b5; color: var(--green); display: block; }
   .status.err { background: #fdf0f0; border: 1px solid #e8b5b5; color: var(--red); display: block; }
 
-  /* ─── PRINT PREVIEW AREA ─────────────────────────────────────────── */
+  /* ── PRINT PREVIEW ─────────────────────────────────────────────── */
   #printArea {
     display: none;
-    background: white;
-    border: 1px solid var(--rule);
+    background: #777;
     border-radius: 4px;
     margin-top: 18px;
-    padding: 20px;
+    padding: 24px;
   }
 
   #printArea h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    color: var(--board-dark);
-    margin-bottom: 14px;
-  }
-
-  /* Each print page */
-  .print-page {
-    width: 100%;
-    max-width: 680px;
-    margin: 0 auto 24px;
-    border: 1px solid #ddd;
-    background: white;
-    padding: 12px;
-  }
-
-  .page-label {
-    font-size: 10px;
-    color: #aaa;
-    text-align: right;
-    margin-bottom: 6px;
-    font-family: 'Source Code Pro', monospace;
-    letter-spacing: 0.5px;
-  }
-
-  /* Individual slip */
-  .slip {
-    border: 1px solid #888;
-    margin-bottom: 6px;
-    padding: 7px 10px;
-    break-inside: avoid;
-  }
-  .slip:last-child { margin-bottom: 0; }
-
-  .slip-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 4px;
-    margin-bottom: 5px;
-  }
-
-  .slip-title {
-    font-size: 9px;
-    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #444;
   }
 
-  .slip-board {
-    font-size: 11px;
-    font-weight: 700;
-    color: #1a1208;
-  }
-
-  .slip-players {
+  /* ── PRINT PAGE: exact 8.5×11 ──────────────────────────────────── */
+  .print-page {
+    width: 8.5in;
+    height: 11in;
+    background: white;
+    margin: 0 auto 24px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
   }
 
-  .slip-row {
-    display: grid;
-    grid-template-columns: 26px 44px 1fr 44px 40px;
+  /* ── SLIP: 1/5 of page = 2.2in tall ───────────────────────────── */
+  .slip {
+    width: 100%;
+    height: 2.2in;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1.5px dashed #bbb;
+    overflow: hidden;
+  }
+  .slip:last-child { border-bottom: none; }
+
+  /* ─ WHITE side (left) ─────────────────────────────────────────── */
+  .slip-white {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.14in 0.18in 0.14in 0.20in;
+    border-right: 1px solid #e0e0e0;
+    background: #fafafa;
+  }
+
+  /* ─ CENTER ────────────────────────────────────────────────────── */
+  .slip-center {
+    width: 1.85in;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    font-size: 10px;
-  }
-
-  .slip-color {
-    font-weight: 700;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: #666;
-  }
-
-  .slip-team {
-    font-size: 9px;
-    font-weight: 700;
-    color: #555;
+    justify-content: space-between;
+    padding: 0.12in 0.10in 0.14in;
+    border-right: 1px solid #e0e0e0;
+    background: white;
     text-align: center;
-    background: #f0f0f0;
-    padding: 1px 3px;
-    border-radius: 2px;
   }
 
-  .slip-name {
-    font-size: 10px;
-    font-weight: 600;
+  /* ─ BLACK side (right) ────────────────────────────────────────── */
+  .slip-black {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.14in 0.20in 0.14in 0.18in;
+    background: #fafafa;
+  }
+
+  /* Player info */
+  .player-top { display: flex; flex-direction: column; gap: 4px; }
+
+  .player-color-label {
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+  }
+
+  .player-name {
+    font-size: 13.5pt;
+    font-weight: 700;
     color: #1a1208;
+    line-height: 1.15;
+    word-break: break-word;
   }
 
-  .slip-score {
-    font-size: 9px;
+  .player-meta {
+    font-size: 8pt;
     color: #777;
-    text-align: right;
+    margin-top: 1px;
   }
 
-  .slip-result-box {
-    border: 1px solid #aaa;
-    width: 28px;
-    height: 16px;
-    display: inline-block;
+  .player-meta strong { font-weight: 700; color: #555; }
+
+  /* Signature */
+  .player-sig { display: flex; flex-direction: column; gap: 4px; }
+  .sig-label { font-size: 7pt; color: #bbb; text-transform: uppercase; letter-spacing: 0.8px; }
+  .sig-line { border-bottom: 1px solid #bbb; width: 100%; height: 18px; }
+
+  /* Center: board + section info */
+  .center-top { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+  .board-label {
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #aaa;
+    font-weight: 700;
   }
 
-  .slip-bye {
-    font-size: 10px;
+  .board-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 26pt;
+    font-weight: 900;
+    color: #1a1208;
+    line-height: 1;
+  }
+
+  .center-section {
+    font-size: 6.5pt;
     color: #888;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 0 4px;
+    margin-top: 2px;
+  }
+
+  /* Result */
+  .result-area { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
+  .result-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; font-weight: 700; }
+
+  .result-options { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: flex-start; padding: 0 0.1in; }
+
+  .result-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .result-circle {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid #999;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .result-text {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .result-sub {
+    font-size: 6.5pt;
+    color: #bbb;
+    margin-left: 2px;
+  }
+
+  /* Bye */
+  .slip-bye-msg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 10pt;
+    color: #bbb;
     font-style: italic;
-    padding: 2px 0;
+    letter-spacing: 1px;
   }
 
   footer {
@@ -320,34 +363,39 @@
     border-top: 1px solid var(--rule);
   }
 
-  /* ─── PRINT STYLES ──────────────────────────────────────────────── */
+  /* ── PRINT MEDIA ─────────────────────────────────────────────── */
   @media print {
+    @page { size: 8.5in 11in; margin: 0; }
+
     body { background: white; }
-    body::before { display: none; }
-    .wrapper { padding: 0; max-width: 100%; }
-    header, .card, footer, #printArea h3, .page-label { display: none !important; }
+    body::before { display: none !important; }
+    .wrapper { display: none !important; }
+
     #printArea {
       display: block !important;
-      border: none;
-      padding: 0;
-      margin: 0;
+      background: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
+
+    #printArea h3 { display: none !important; }
+
     .print-page {
-      max-width: 100%;
-      border: none;
-      padding: 0;
+      width: 8.5in;
+      height: 11in;
       margin: 0;
+      padding: 0;
       page-break-after: always;
+      box-shadow: none;
     }
+
     .print-page:last-child { page-break-after: avoid; }
-    .slip { border: 1px solid #999; margin-bottom: 4px; }
-    .page-label { display: none !important; }
   }
 </style>
 </head>
 <body>
-<div class="wrapper">
 
+<div class="wrapper">
   <header>
     <span class="chess-icon">♟</span>
     <h1>Pairing Slip <span>Generator</span></h1>
@@ -356,14 +404,14 @@
 
   <div class="rule-line"></div>
 
-  <!-- STEP 1: LOAD FILE -->
+  <!-- STEP 1 -->
   <div class="card">
     <div class="card-title"><span class="step-badge">1</span>Load Pairings File</div>
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" accept=".txt,.prn,.lis,text/*">
       <span class="drop-icon">📄</span>
       <div class="drop-label">Click to browse or drag &amp; drop</div>
-      <div class="drop-sub">SwissSys/ChessRoster pairings .txt file</div>
+      <div class="drop-sub">SwissSys / ChessRoster pairings .txt file</div>
     </div>
     <div class="file-info" id="fileInfo">
       <span>✅</span>
@@ -371,38 +419,37 @@
     </div>
   </div>
 
-  <!-- STEP 2: SELECT SECTIONS -->
+  <!-- STEP 2 -->
   <div class="card">
     <div class="card-title"><span class="step-badge">2</span>Select Sections to Print</div>
-    <div id="sectionList"><p style="color:#aaa;font-size:13px;">Load a file to see sections.</p></div>
+    <div id="sectionList"><p style="color:#bbb;font-size:13px;">Load a file to see sections.</p></div>
     <div class="status" id="parseStatus"></div>
   </div>
 
-  <!-- STEP 3: OPTIONS -->
+  <!-- STEP 3 -->
   <div class="card">
-    <div class="card-title"><span class="step-badge">3</span>Print Options</div>
+    <div class="card-title"><span class="step-badge">3</span>Options</div>
     <div class="settings-row">
       <div class="field">
         <label>Slips Per Page</label>
         <select id="slipsPerPage">
-          <option value="5" selected>5 (SwissSys default)</option>
+          <option value="5" selected>5 (fills 8.5×11)</option>
           <option value="4">4</option>
           <option value="3">3</option>
-          <option value="6">6</option>
         </select>
       </div>
       <div class="field">
         <label>Tournament Name Override</label>
-        <input type="text" id="tourneyName" placeholder="(auto-detected from file)">
+        <input type="text" id="tourneyName" placeholder="(auto-detected)">
       </div>
       <div class="field">
         <label>Round Override</label>
-        <input type="text" id="roundOverride" placeholder="(auto-detected from file)">
+        <input type="text" id="roundOverride" placeholder="(auto-detected)">
       </div>
     </div>
   </div>
 
-  <!-- STEP 4: GENERATE -->
+  <!-- STEP 4 -->
   <div class="card">
     <div class="card-title"><span class="step-badge">4</span>Generate &amp; Print</div>
     <div class="btn-row">
@@ -412,27 +459,29 @@
     <div class="status" id="genStatus"></div>
   </div>
 
-  <!-- PRINT AREA -->
-  <div id="printArea">
-    <h3>Print Preview — <span id="previewLabel"></span></h3>
-    <div id="pages"></div>
-  </div>
-
   <footer>Saint Louis Chess Club · Pairing Slip Generator · Built for SwissSys / ChessRoster</footer>
+</div>
+
+<!-- PRINT AREA — lives outside .wrapper so it prints alone -->
+<div id="printArea">
+  <h3>▼ Print Preview — <span id="previewLabel"></span></h3>
+  <div id="pages"></div>
 </div>
 
 <script>
 let parsedSections = [];
 
-// ── File loading ──────────────────────────────────────────────────────────────
-
-const dropZone = document.getElementById('dropZone');
+// ── File loading ──────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
 
 function loadFile(file) {
@@ -445,86 +494,45 @@ function loadFile(file) {
   reader.readAsText(file, 'latin1');
 }
 
-// ── Parsing ───────────────────────────────────────────────────────────────────
-
+// ── Parsing ───────────────────────────────────────────────────────────────
 function parseFile(content) {
   parsedSections = [];
   const lines = content.split(/\r?\n/);
-  let currentSection = null;
+  let cur = null;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  const extractScore = str => {
+    const m = str.match(/\(([0-9.½]+)\)\s*$/);
+    return m
+      ? { name: str.replace(/\s*\([0-9.½]+\)\s*$/, '').trim(), score: m[1] }
+      : { name: str.trim(), score: '' };
+  };
 
-    // Detect section header: "Pairings for Round X. ..."
-    const headerMatch = line.match(/^Pairings for (Round \d+)\.\s*(.+)$/i);
-    if (headerMatch) {
-      if (currentSection) parsedSections.push(currentSection);
-      currentSection = {
-        round: headerMatch[1],
-        name: headerMatch[2].trim(),
-        pairings: [],
-        byes: []
-      };
+  for (const line of lines) {
+    const hdr = line.match(/^Pairings for (Round \d+)\.\s*(.+)$/i);
+    if (hdr) {
+      if (cur) parsedSections.push(cur);
+      cur = { round: hdr[1], name: hdr[2].trim(), pairings: [], byes: [] };
       continue;
     }
+    if (!cur || line.match(/^Bd\s+Team\s+Res/) || !line.trim()) continue;
 
-    if (!currentSection) continue;
-
-    // Skip the column header row
-    if (line.match(/^Bd\s+Team\s+Res/)) continue;
-
-    // Skip blank lines
-    if (!line.trim()) continue;
-
-    // Parse pairing rows
-    // Format: Bd\tTeam\tRes\tWhite\tTeam\tRes\tBlack
     const parts = line.split('\t');
-
-    // Numbered board row: starts with a number
-    const bdMatch = parts[0].trim().match(/^(\d+)$/);
-    if (bdMatch) {
-      const bd = parseInt(bdMatch[1]);
-      const whiteName = (parts[3] || '').trim();
-      const blackName = (parts[6] || '').trim();
-      const whiteTeam = (parts[1] || '').trim();
-      const blackTeam = (parts[4] || '').trim();
-      const whiteRes = (parts[2] || '').trim();
-      const blackRes = (parts[5] || '').trim();
-
-      // Extract score from name "(X.X)" at end
-      const extractScore = str => {
-        const m = str.match(/\(([0-9.]+)\)\s*$/);
-        return m ? { name: str.replace(/\s*\([0-9.]+\)\s*$/, '').trim(), score: m[1] } : { name: str, score: '' };
-      };
-
-      const white = extractScore(whiteName);
-      const black = extractScore(blackName);
-
-      currentSection.pairings.push({
-        bd, 
-        white: { team: whiteTeam, name: white.name, score: white.score, result: whiteRes },
-        black: { team: blackTeam, name: black.name, score: black.score, result: blackRes }
+    const bdM = parts[0].trim().match(/^(\d+)$/);
+    if (bdM) {
+      const w = extractScore((parts[3] || '').trim());
+      const b = extractScore((parts[6] || '').trim());
+      cur.pairings.push({
+        bd: parseInt(bdM[1]),
+        white: { team: (parts[1]||'').trim(), name: w.name, score: w.score },
+        black: { team: (parts[4]||'').trim(), name: b.name, score: b.score }
       });
-      continue;
-    }
-
-    // BYE rows (no board number, just team + player + BYE)
-    if (parts[0].trim() === '' && line.includes('BYE')) {
-      const team = (parts[1] || '').trim();
-      const playerRaw = (parts[3] || '').trim();
-      const extractScore = str => {
-        const m = str.match(/\(([0-9.]+)\)\s*$/);
-        return m ? { name: str.replace(/\s*\([0-9.]+\)\s*$/, '').trim(), score: m[1] } : { name: str, score: '' };
-      };
-      const player = extractScore(playerRaw);
-      if (team || player.name) {
-        currentSection.byes.push({ team, name: player.name, score: player.score });
-      }
+    } else if (parts[0].trim() === '' && line.includes('BYE')) {
+      const p = extractScore((parts[3]||'').trim());
+      if ((parts[1]||'').trim() || p.name)
+        cur.byes.push({ team: (parts[1]||'').trim(), name: p.name, score: p.score });
     }
   }
-
-  if (currentSection) parsedSections.push(currentSection);
-
+  if (cur) parsedSections.push(cur);
   renderSectionList();
 }
 
@@ -534,11 +542,9 @@ function renderSectionList() {
     container.innerHTML = '<p style="color:#c00;font-size:13px;">No sections found. Check file format.</p>';
     return;
   }
-
   container.innerHTML = '';
   const list = document.createElement('div');
   list.className = 'section-list';
-
   parsedSections.forEach((sec, i) => {
     const item = document.createElement('div');
     item.className = 'section-item';
@@ -552,93 +558,59 @@ function renderSectionList() {
     `;
     list.appendChild(item);
   });
-
   container.appendChild(list);
-
   const total = parsedSections.reduce((s, sec) => s + sec.pairings.length, 0);
   setStatus('parseStatus', 'ok', `✓ Found ${parsedSections.length} section(s) — ${total} total boards.`);
   document.getElementById('btnGenerate').disabled = false;
 }
 
-// ── Slip generation & reorder ─────────────────────────────────────────────────
-
+// ── Generate & reorder ────────────────────────────────────────────────────
 function generateSlips() {
-  const slipsPerPage = parseInt(document.getElementById('slipsPerPage').value);
-  const tourneyOverride = document.getElementById('tourneyName').value.trim();
-  const roundOverride = document.getElementById('roundOverride').value.trim();
+  const slipsPerPage  = parseInt(document.getElementById('slipsPerPage').value);
+  const tourneyOver   = document.getElementById('tourneyName').value.trim();
+  const roundOver     = document.getElementById('roundOverride').value.trim();
 
-  // Gather selected sections and flatten all pairings in order
-  const selected = parsedSections.filter((_, i) =>
-    document.getElementById(`sec_${i}`)?.checked
-  );
+  const selected = parsedSections.filter((_, i) => document.getElementById(`sec_${i}`)?.checked);
+  if (!selected.length) { setStatus('genStatus', 'err', 'Please select at least one section.'); return; }
 
-  if (!selected.length) {
-    setStatus('genStatus', 'err', 'Please select at least one section.');
-    return;
-  }
-
-  // Build flat slip list across all selected sections
-  let allSlips = [];
+  const allSlips = [];
   selected.forEach(sec => {
-    const round = roundOverride || sec.round;
-    const sectionName = sec.name;
-    const tourneyName = tourneyOverride || extractTourney(sectionName);
-
     sec.pairings.forEach(p => {
-      allSlips.push({ sec: sectionName, round, tourney: tourneyName, pairing: p });
+      allSlips.push({ sec: sec.name, round: roundOver || sec.round, tourney: tourneyOver || sec.name, pairing: p });
     });
-
-    // Append byes as a note (optional — byes don't need a slip normally)
   });
 
-  // Reorder slips: transpose so stacking gives consecutive boards
   const numSlips = allSlips.length;
   const numPages = Math.ceil(numSlips / slipsPerPage);
 
-  // Build reordered slip sequence
-  // New page k (0-indexed) gets slips at indices: k, k+numPages, k+2*numPages, ...
-  const reorderedSlips = [];
+  // Transpose reorder so stacking = consecutive boards
+  const pages = [];
   for (let k = 0; k < numPages; k++) {
-    const pageSlips = [];
+    const pg = [];
     for (let row = 0; row < slipsPerPage; row++) {
       const idx = k + row * numPages;
-      if (idx < numSlips) pageSlips.push(allSlips[idx]);
+      if (idx < numSlips) pg.push(allSlips[idx]);
     }
-    reorderedSlips.push(pageSlips);
+    pages.push(pg);
   }
 
-  renderPages(reorderedSlips, slipsPerPage, numSlips, numPages);
+  renderPages(pages, slipsPerPage, numSlips, numPages);
   setStatus('genStatus', 'ok', `✓ Generated ${numSlips} slips across ${numPages} pages. Ready to print.`);
   document.getElementById('btnPrint').disabled = false;
-}
-
-function extractTourney(sectionName) {
-  // Remove section suffix like ": K-12 Open" to get base tourney name
-  // The file has format "Turkey Tango 2025: K-12 Open"
-  const m = sectionName.match(/^(.+?)(?::\s*.+)?$/);
-  return m ? m[1].trim() : sectionName;
 }
 
 function renderPages(pages, slipsPerPage, totalSlips, totalPages) {
   const pagesDiv = document.getElementById('pages');
   pagesDiv.innerHTML = '';
-
   document.getElementById('previewLabel').textContent =
     `${totalSlips} slips · ${totalPages} pages · ${slipsPerPage} per page`;
 
-  pages.forEach((pageSlips, pi) => {
+  const slipH = (11 / slipsPerPage).toFixed(4) + 'in';
+
+  pages.forEach(pageSlips => {
     const pageDiv = document.createElement('div');
     pageDiv.className = 'print-page';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'page-label';
-    lbl.textContent = `PAGE ${pi + 1} / ${totalPages}`;
-    pageDiv.appendChild(lbl);
-
-    pageSlips.forEach(slip => {
-      pageDiv.appendChild(renderSlip(slip));
-    });
-
+    pageSlips.forEach(slip => pageDiv.appendChild(renderSlip(slip, slipH)));
     pagesDiv.appendChild(pageDiv);
   });
 
@@ -647,40 +619,81 @@ function renderPages(pages, slipsPerPage, totalSlips, totalPages) {
   printArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function renderSlip(slip) {
+function renderSlip(slip, slipH) {
   const p = slip.pairing;
-  const div = document.createElement('div');
-  div.className = 'slip';
-
-  // Section name — strip tourney prefix for brevity
   const secShort = slip.sec.replace(/^.+?:\s*/, '');
 
-  div.innerHTML = `
-    <div class="slip-header">
-      <span class="slip-title">${slip.round} · ${secShort}</span>
-      <span class="slip-board">Board ${p.bd}</span>
-    </div>
-    <div class="slip-players">
-      ${renderPlayerRow('W', p.white)}
-      ${renderPlayerRow('B', p.black)}
-    </div>
-  `;
-  return div;
-}
+  const div = document.createElement('div');
+  div.className = 'slip';
+  div.style.height = slipH;
 
-function renderPlayerRow(color, player) {
-  if (!player.name) {
-    return `<div class="slip-row"><span class="slip-color">${color}</span><span class="slip-bye" style="grid-column:2/-1">— BYE —</span></div>`;
-  }
-  return `
-    <div class="slip-row">
-      <span class="slip-color">${color}</span>
-      <span class="slip-team">${player.team || '—'}</span>
-      <span class="slip-name">${player.name}</span>
-      <span class="slip-score">(${player.score})</span>
-      <span class="slip-result-box"></span>
+  const isBye = !p.black.name;
+
+  const wMeta = [p.white.team, p.white.score ? `Score: ${p.white.score}` : ''].filter(Boolean).join(' · ');
+  const bMeta = [p.black.team, p.black.score ? `Score: ${p.black.score}` : ''].filter(Boolean).join(' · ');
+
+  div.innerHTML = `
+    <!-- ── WHITE (left) ── -->
+    <div class="slip-white">
+      <div class="player-top">
+        <div class="player-color-label">⬜ White</div>
+        <div class="player-name">${p.white.name || '—'}</div>
+        ${wMeta ? `<div class="player-meta">${wMeta}</div>` : ''}
+      </div>
+      <div class="player-sig">
+        <div class="sig-label">Signature</div>
+        <div class="sig-line"></div>
+      </div>
+    </div>
+
+    <!-- ── CENTER ── -->
+    <div class="slip-center">
+      <div class="center-top">
+        <div class="board-label">Board</div>
+        <div class="board-number">${p.bd}</div>
+        <div class="center-section">${slip.round}<br>${secShort}</div>
+      </div>
+
+      <div class="result-area">
+        <div class="result-label">Circle Result</div>
+        <div class="result-options">
+          <div class="result-option">
+            <div class="result-circle"></div>
+            <span class="result-text">1 – 0</span>
+            <span class="result-sub">White wins</span>
+          </div>
+          <div class="result-option">
+            <div class="result-circle"></div>
+            <span class="result-text">½ – ½</span>
+            <span class="result-sub">Draw</span>
+          </div>
+          <div class="result-option">
+            <div class="result-circle"></div>
+            <span class="result-text">0 – 1</span>
+            <span class="result-sub">Black wins</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BLACK (right) ── -->
+    <div class="slip-black">
+      ${isBye
+        ? '<div class="slip-bye-msg">— BYE —</div>'
+        : `<div class="player-top">
+            <div class="player-color-label">⬛ Black</div>
+            <div class="player-name">${p.black.name}</div>
+            ${bMeta ? `<div class="player-meta">${bMeta}</div>` : ''}
+           </div>
+           <div class="player-sig">
+             <div class="sig-label">Signature</div>
+             <div class="sig-line"></div>
+           </div>`
+      }
     </div>
   `;
+
+  return div;
 }
 
 function setStatus(id, type, msg) {
