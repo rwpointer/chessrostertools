@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwissSys Pairing Slip Reorder</title>
+<title>SwissSys Pairing Slip Generator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Code+Pro:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap');
 
@@ -29,13 +29,11 @@
     min-height: 100vh;
   }
 
-  /* Chess board pattern background */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      repeating-conic-gradient(var(--parchment) 0% 25%, transparent 0% 50%);
+    background-image: repeating-conic-gradient(var(--parchment) 0% 25%, transparent 0% 50%);
     background-size: 40px 40px;
     opacity: 0.4;
     z-index: 0;
@@ -45,83 +43,52 @@
   .wrapper {
     position: relative;
     z-index: 1;
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 40px 24px 60px;
   }
 
-  header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
-  .chess-icon {
-    font-size: 48px;
-    line-height: 1;
-    margin-bottom: 12px;
-    display: block;
-  }
-
+  header { text-align: center; margin-bottom: 36px; }
+  .chess-icon { font-size: 44px; line-height: 1; margin-bottom: 10px; display: block; }
   h1 {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 5vw, 42px);
+    font-size: clamp(26px, 4.5vw, 40px);
     font-weight: 900;
     color: var(--board-dark);
-    letter-spacing: -0.5px;
-    line-height: 1.1;
   }
+  h1 span { color: var(--gold); }
+  .subtitle { margin-top: 8px; color: var(--board-medium); font-size: 14px; font-weight: 500; }
+  .rule-line { width: 100%; height: 2px; background: linear-gradient(to right, transparent, var(--gold), transparent); margin: 20px 0; }
 
-  h1 span {
-    color: var(--gold);
-  }
-
-  .subtitle {
-    margin-top: 10px;
-    color: var(--board-medium);
-    font-size: 15px;
-    font-weight: 500;
-  }
-
-  .rule-line {
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(to right, transparent, var(--gold), transparent);
-    margin: 24px 0;
-  }
-
-  /* Cards */
   .card {
     background: white;
     border: 1px solid var(--rule);
     border-radius: 4px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(74,55,40,0.08);
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(74,55,40,0.07);
   }
 
   .card-title {
     font-family: 'Playfair Display', serif;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--board-dark);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .card-title .step-badge {
+  .step-badge {
     background: var(--gold);
     color: white;
     font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    width: 24px;
-    height: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px; height: 22px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
 
@@ -129,361 +96,252 @@
   .drop-zone {
     border: 2px dashed var(--rule);
     border-radius: 4px;
-    padding: 40px 20px;
+    padding: 36px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     background: var(--cream);
   }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: #fdf8ef; }
+  .drop-zone input { display: none; }
+  .drop-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+  .drop-label { font-weight: 600; color: var(--board-dark); font-size: 14px; }
+  .drop-sub { color: var(--board-medium); font-size: 12px; margin-top: 3px; }
 
-  .drop-zone:hover,
-  .drop-zone.drag-over {
-    border-color: var(--gold);
-    background: #fdf8ef;
-  }
-
-  .drop-zone input[type=file] {
-    display: none;
-  }
-
-  .drop-icon { font-size: 36px; margin-bottom: 10px; display: block; }
-  .drop-label { font-weight: 600; color: var(--board-dark); font-size: 15px; }
-  .drop-sub { color: var(--board-medium); font-size: 13px; margin-top: 4px; }
-
-  .file-chosen {
+  .file-info {
     display: none;
     align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
+    gap: 10px;
+    padding: 12px 16px;
     background: #f0f7ef;
     border: 1px solid #b8d4b5;
     border-radius: 4px;
-    margin-top: 12px;
+    margin-top: 10px;
   }
+  .file-info.visible { display: flex; }
+  .file-info .fn { font-weight: 600; font-size: 13px; color: var(--green); }
 
-  .file-chosen.visible { display: flex; }
-  .file-chosen .file-icon { font-size: 24px; }
-  .file-chosen .file-name { font-weight: 600; font-size: 14px; color: var(--green); }
-  .file-chosen .file-size { font-size: 12px; color: #666; }
-
-  /* Settings */
-  .settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media (max-width: 600px) {
-    .settings-grid { grid-template-columns: 1fr; }
-  }
-
-  .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--board-medium);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .field input, .field select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    background: var(--cream);
-    color: var(--ink);
-    transition: border-color 0.15s;
-  }
-
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--gold);
-  }
-
-  .field .hint {
-    font-size: 12px;
-    color: #999;
-    margin-top: 5px;
-  }
-
-  .separator-preview {
-    font-family: 'Source Code Pro', monospace;
-    font-size: 12px;
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    padding: 6px 10px;
-    margin-top: 8px;
-    white-space: pre;
-    overflow-x: auto;
-    max-height: 60px;
-    color: #555;
-    display: none;
-  }
-
-  /* Parse Status */
-  .parse-status {
-    display: none;
-    padding: 12px 16px;
-    border-radius: 3px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 16px;
-  }
-
-  .parse-status.success {
-    background: #f0f7ef;
-    border: 1px solid #b8d4b5;
-    color: var(--green);
-    display: block;
-  }
-
-  .parse-status.error {
-    background: #fdf0f0;
-    border: 1px solid #e8b5b5;
-    color: var(--red);
-    display: block;
-  }
-
-  .parse-status.warn {
-    background: #fffbef;
-    border: 1px solid #e8d8a0;
-    color: #7a5c00;
-    display: block;
-  }
-
-  /* Preview */
-  .preview-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media (max-width: 600px) { .preview-grid { grid-template-columns: 1fr; } }
-
-  .preview-col h4 {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    color: var(--board-medium);
-  }
-
-  .preview-box {
-    font-family: 'Source Code Pro', monospace;
-    font-size: 11px;
-    background: #f8f8f8;
-    border: 1px solid #e0e0e0;
-    border-radius: 3px;
-    padding: 10px;
-    height: 200px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    color: #333;
-    line-height: 1.5;
-  }
-
-  .pg-marker {
-    background: var(--gold);
-    color: white;
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-
-  /* Stats bar */
-  .stats-bar {
+  /* Section selector */
+  .section-list { display: flex; flex-direction: column; gap: 8px; }
+  .section-item {
     display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .stat-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--board-dark);
-    line-height: 1;
-  }
-
-  .stat-lbl {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--board-medium);
-    font-weight: 600;
-  }
-
-  /* Process Button */
-  .btn-row {
-    display: flex;
+    align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-
-  .btn {
-    padding: 13px 28px;
-    border: none;
-    border-radius: 3px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
+    padding: 12px 16px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--cream);
     cursor: pointer;
     transition: all 0.15s;
-    letter-spacing: 0.2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
-
-  .btn-primary {
+  .section-item:hover { border-color: var(--gold); background: #fdf8ef; }
+  .section-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+  .section-item label { cursor: pointer; flex: 1; }
+  .sec-name { font-weight: 600; color: var(--board-dark); font-size: 14px; }
+  .sec-meta { font-size: 12px; color: var(--board-medium); margin-top: 2px; }
+  .sec-badge {
     background: var(--board-dark);
     color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
   }
 
-  .btn-primary:hover {
-    background: var(--board-medium);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74,55,40,0.3);
+  /* Settings row */
+  .settings-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 140px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--board-medium); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input, .field select {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--rule); border-radius: 3px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    background: var(--cream); color: var(--ink);
+    transition: border-color 0.15s;
   }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
 
-  .btn-primary:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 11px 24px;
+    border: none; border-radius: 3px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 7px;
   }
+  .btn:disabled { background: #ccc !important; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .btn-dark { background: var(--board-dark); color: white; }
+  .btn-dark:hover:not(:disabled) { background: var(--board-medium); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(74,55,40,0.25); }
+  .btn-gold { background: var(--gold); color: white; }
+  .btn-gold:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(200,145,42,0.3); }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover:not(:disabled) { background: #3d7a34; transform: translateY(-1px); }
 
-  .btn-gold {
-    background: var(--gold);
-    color: white;
+  .status {
+    padding: 10px 14px; border-radius: 3px; font-size: 13px; font-weight: 500;
+    margin-top: 12px; display: none;
   }
+  .status.ok { background: #f0f7ef; border: 1px solid #b8d4b5; color: var(--green); display: block; }
+  .status.err { background: #fdf0f0; border: 1px solid #e8b5b5; color: var(--red); display: block; }
 
-  .btn-gold:hover {
-    background: var(--gold-light);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(200,145,42,0.35);
-  }
-
-  .btn-gold:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  /* Diagram */
-  .diagram {
-    background: var(--cream);
+  /* ─── PRINT PREVIEW AREA ─────────────────────────────────────────── */
+  #printArea {
+    display: none;
+    background: white;
     border: 1px solid var(--rule);
     border-radius: 4px;
+    margin-top: 18px;
     padding: 20px;
-    margin-top: 0;
   }
 
-  .diagram-title {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--board-medium);
+  #printArea h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--board-dark);
     margin-bottom: 14px;
   }
 
-  .diagram-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    font-size: 13px;
+  /* Each print page */
+  .print-page {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 24px;
+    border: 1px solid #ddd;
+    background: white;
+    padding: 12px;
   }
 
-  .d-label {
-    width: 80px;
-    font-weight: 600;
-    color: var(--board-medium);
-    font-size: 12px;
-  }
-
-  .d-slips {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
-  .d-slip {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 2px;
-    font-family: 'Source Code Pro', monospace;
-  }
-
-  .d-slip.orig { background: var(--board-dark); color: white; }
-  .d-slip.new-a { background: var(--gold); color: white; }
-  .d-slip.new-b { background: var(--green); color: white; }
-  .d-slip.new-c { background: #5b4fa0; color: white; }
-  .d-slip.new-d { background: var(--red); color: white; }
-  .d-slip.new-e { background: var(--board-medium); color: white; }
-
-  .arrow { color: var(--board-medium); font-size: 18px; }
-
-  .stack-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-  }
-
-  .stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .stack-label {
+  .page-label {
     font-size: 10px;
+    color: #aaa;
+    text-align: right;
+    margin-bottom: 6px;
+    font-family: 'Source Code Pro', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* Individual slip */
+  .slip {
+    border: 1px solid #888;
+    margin-bottom: 6px;
+    padding: 7px 10px;
+    break-inside: avoid;
+  }
+  .slip:last-child { margin-bottom: 0; }
+
+  .slip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin-bottom: 5px;
+  }
+
+  .slip-title {
+    font-size: 9px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--board-medium);
-    font-weight: 700;
-    margin-bottom: 3px;
+    color: #444;
   }
 
-  .stack-items {
+  .slip-board {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1208;
+  }
+
+  .slip-players {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
+  }
+
+  .slip-row {
+    display: grid;
+    grid-template-columns: 26px 44px 1fr 44px 40px;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .slip-color {
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #666;
+  }
+
+  .slip-team {
+    font-size: 9px;
+    font-weight: 700;
+    color: #555;
+    text-align: center;
+    background: #f0f0f0;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+
+  .slip-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #1a1208;
+  }
+
+  .slip-score {
+    font-size: 9px;
+    color: #777;
+    text-align: right;
+  }
+
+  .slip-result-box {
+    border: 1px solid #aaa;
+    width: 28px;
+    height: 16px;
+    display: inline-block;
+  }
+
+  .slip-bye {
+    font-size: 10px;
+    color: #888;
+    font-style: italic;
+    padding: 2px 0;
   }
 
   footer {
     text-align: center;
     color: var(--board-medium);
-    font-size: 12px;
-    margin-top: 40px;
-    padding-top: 20px;
+    font-size: 11px;
+    margin-top: 36px;
+    padding-top: 16px;
     border-top: 1px solid var(--rule);
+  }
+
+  /* ─── PRINT STYLES ──────────────────────────────────────────────── */
+  @media print {
+    body { background: white; }
+    body::before { display: none; }
+    .wrapper { padding: 0; max-width: 100%; }
+    header, .card, footer, #printArea h3, .page-label { display: none !important; }
+    #printArea {
+      display: block !important;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    .print-page {
+      max-width: 100%;
+      border: none;
+      padding: 0;
+      margin: 0;
+      page-break-after: always;
+    }
+    .print-page:last-child { page-break-after: avoid; }
+    .slip { border: 1px solid #999; margin-bottom: 4px; }
+    .page-label { display: none !important; }
   }
 </style>
 </head>
@@ -492,425 +350,343 @@
 
   <header>
     <span class="chess-icon">♟</span>
-    <h1>Pairing Slip <span>Reorder</span></h1>
-    <p class="subtitle">SwissSys • Tournament Print Utility • Saint Louis Chess Club</p>
+    <h1>Pairing Slip <span>Generator</span></h1>
+    <p class="subtitle">SwissSys · ChessRoster · Saint Louis Chess Club</p>
   </header>
 
   <div class="rule-line"></div>
 
-  <!-- HOW IT WORKS -->
+  <!-- STEP 1: LOAD FILE -->
   <div class="card">
-    <div class="card-title">How It Works</div>
-    <div class="diagram">
-      <div class="diagram-title">Before → After (example: 3 pages, 5 slips each)</div>
-      <div class="diagram-row">
-        <span class="d-label">Old Pg 1</span>
-        <div class="d-slips">
-          <div class="d-slip orig">1</div>
-          <div class="d-slip orig">2</div>
-          <div class="d-slip orig">3</div>
-        </div>
-        <span style="color:#bbb;font-size:11px;margin-left:4px">→ when cut &amp; stacked, pos 1 = 1,6,11...</span>
-      </div>
-      <div class="diagram-row">
-        <span class="d-label">Old Pg 2</span>
-        <div class="d-slips">
-          <div class="d-slip orig">4</div>
-          <div class="d-slip orig">5</div>
-          <div class="d-slip orig">6</div>
-        </div>
-      </div>
-      <div class="diagram-row">
-        <span class="d-label">Old Pg 3</span>
-        <div class="d-slips">
-          <div class="d-slip orig">7</div>
-          <div class="d-slip orig">8</div>
-          <div class="d-slip orig">9</div>
-        </div>
-      </div>
-      <div style="margin:12px 0 8px;font-size:12px;color:var(--board-medium);font-weight:600;">↓ After reorder → position 1 stacks = consecutive pairings</div>
-      <div class="diagram-row">
-        <span class="d-label">New Pg 1</span>
-        <div class="d-slips">
-          <div class="d-slip new-a">1</div>
-          <div class="d-slip new-b">4</div>
-          <div class="d-slip new-c">7</div>
-        </div>
-      </div>
-      <div class="diagram-row">
-        <span class="d-label">New Pg 2</span>
-        <div class="d-slips">
-          <div class="d-slip new-a">2</div>
-          <div class="d-slip new-b">5</div>
-          <div class="d-slip new-c">8</div>
-        </div>
-      </div>
-      <div class="diagram-row">
-        <span class="d-label">New Pg 3</span>
-        <div class="d-slips">
-          <div class="d-slip new-a">3</div>
-          <div class="d-slip new-b">6</div>
-          <div class="d-slip new-c">9</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;font-size:12px;color:var(--board-medium);">
-        ✓ Stack position 1 = pairings <strong>1,2,3</strong> &nbsp;|&nbsp; Stack position 2 = pairings <strong>4,5,6</strong> &nbsp;|&nbsp; Stack position 3 = pairings <strong>7,8,9</strong>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 1: UPLOAD -->
-  <div class="card">
-    <div class="card-title"><span class="step-badge">1</span>Load SwissSys Text File</div>
+    <div class="card-title"><span class="step-badge">1</span>Load Pairings File</div>
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" accept=".txt,.prn,.lis,text/*">
       <span class="drop-icon">📄</span>
       <div class="drop-label">Click to browse or drag &amp; drop</div>
-      <div class="drop-sub">SwissSys pairing slip text files (.txt, .prn, .lis)</div>
+      <div class="drop-sub">SwissSys/ChessRoster pairings .txt file</div>
     </div>
-    <div class="file-chosen" id="fileChosen">
-      <span class="file-icon">✅</span>
-      <div>
-        <div class="file-name" id="fileName">—</div>
-        <div class="file-size" id="fileSize">—</div>
-      </div>
+    <div class="file-info" id="fileInfo">
+      <span>✅</span>
+      <span class="fn" id="fileName">—</span>
     </div>
   </div>
 
-  <!-- STEP 2: CONFIG -->
+  <!-- STEP 2: SELECT SECTIONS -->
   <div class="card">
-    <div class="card-title"><span class="step-badge">2</span>Configure Parsing</div>
-    <div class="settings-grid">
+    <div class="card-title"><span class="step-badge">2</span>Select Sections to Print</div>
+    <div id="sectionList"><p style="color:#aaa;font-size:13px;">Load a file to see sections.</p></div>
+    <div class="status" id="parseStatus"></div>
+  </div>
+
+  <!-- STEP 3: OPTIONS -->
+  <div class="card">
+    <div class="card-title"><span class="step-badge">3</span>Print Options</div>
+    <div class="settings-row">
       <div class="field">
         <label>Slips Per Page</label>
-        <input type="number" id="slipsPerPage" value="5" min="1" max="20">
-        <div class="hint">SwissSys default is 5</div>
-      </div>
-      <div class="field">
-        <label>Slip Separator</label>
-        <select id="separatorType">
-          <option value="formfeed_page">Page break (form feed) splits pages only</option>
-          <option value="blankline">Blank line between slips</option>
-          <option value="dashes">Dashes line (---)</option>
-          <option value="fixedlines">Fixed lines per slip</option>
+        <select id="slipsPerPage">
+          <option value="5" selected>5 (SwissSys default)</option>
+          <option value="4">4</option>
+          <option value="3">3</option>
+          <option value="6">6</option>
         </select>
-        <div class="hint">How slips are divided within a page</div>
-      </div>
-      <div class="field" id="linesPerSlipField" style="display:none">
-        <label>Lines Per Slip</label>
-        <input type="number" id="linesPerSlip" value="10" min="1" max="100">
-        <div class="hint">Exact line count for each slip</div>
       </div>
       <div class="field">
-        <label>Output Filename</label>
-        <input type="text" id="outputName" value="pairings-reordered.txt" placeholder="pairings-reordered.txt">
+        <label>Tournament Name Override</label>
+        <input type="text" id="tourneyName" placeholder="(auto-detected from file)">
       </div>
-    </div>
-    <div class="parse-status" id="parseStatus"></div>
-    <div class="stats-bar" id="statsBar" style="display:none">
-      <div class="stat"><span class="stat-val" id="statPages">—</span><span class="stat-lbl">Pages</span></div>
-      <div class="stat"><span class="stat-val" id="statSlips">—</span><span class="stat-lbl">Total Slips</span></div>
-      <div class="stat"><span class="stat-val" id="statRounds">—</span><span class="stat-lbl">Stack Groups</span></div>
-    </div>
-  </div>
-
-  <!-- STEP 3: PREVIEW -->
-  <div class="card" id="previewCard" style="display:none">
-    <div class="card-title"><span class="step-badge">3</span>Preview</div>
-    <div class="preview-grid">
-      <div class="preview-col">
-        <h4>Original (first 2 pages)</h4>
-        <div class="preview-box" id="previewOrig"></div>
-      </div>
-      <div class="preview-col">
-        <h4>Reordered (first 2 pages)</h4>
-        <div class="preview-box" id="previewNew"></div>
+      <div class="field">
+        <label>Round Override</label>
+        <input type="text" id="roundOverride" placeholder="(auto-detected from file)">
       </div>
     </div>
   </div>
 
-  <!-- STEP 4: DOWNLOAD -->
+  <!-- STEP 4: GENERATE -->
   <div class="card">
-    <div class="card-title"><span class="step-badge">4</span>Process &amp; Download</div>
+    <div class="card-title"><span class="step-badge">4</span>Generate &amp; Print</div>
     <div class="btn-row">
-      <button class="btn btn-primary" id="btnParse" onclick="parseFile()" disabled>
-        ⚙ Parse &amp; Analyze
-      </button>
-      <button class="btn btn-gold" id="btnDownload" onclick="downloadFile()" disabled>
-        ⬇ Download Reordered File
-      </button>
+      <button class="btn btn-dark" id="btnGenerate" onclick="generateSlips()" disabled>⚙ Generate Slips</button>
+      <button class="btn btn-gold" id="btnPrint" onclick="window.print()" disabled>🖨 Print</button>
     </div>
+    <div class="status" id="genStatus"></div>
   </div>
 
-  <footer>
-    Saint Louis Chess Club · Pairing Slip Reorder Tool · Built for SwissSys tournament software
-  </footer>
+  <!-- PRINT AREA -->
+  <div id="printArea">
+    <h3>Print Preview — <span id="previewLabel"></span></h3>
+    <div id="pages"></div>
+  </div>
+
+  <footer>Saint Louis Chess Club · Pairing Slip Generator · Built for SwissSys / ChessRoster</footer>
 </div>
 
 <script>
-let rawContent = '';
-let parsedSlips = [];
-let reorderedContent = '';
+let parsedSections = [];
 
-// ── File loading ─────────────────────────────────────────────────────────────
+// ── File loading ──────────────────────────────────────────────────────────────
 
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
 dropZone.addEventListener('click', () => fileInput.click());
-
-dropZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropZone.classList.add('drag-over');
-});
-
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) loadFile(file);
-});
-
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) loadFile(fileInput.files[0]);
-});
-
-document.getElementById('separatorType').addEventListener('change', () => {
-  const v = document.getElementById('separatorType').value;
-  document.getElementById('linesPerSlipField').style.display =
-    v === 'fixedlines' ? 'block' : 'none';
-  if (rawContent) autoAnalyze();
-});
-
-document.getElementById('slipsPerPage').addEventListener('change', () => {
-  if (rawContent) autoAnalyze();
-});
-
-document.getElementById('linesPerSlip').addEventListener('change', () => {
-  if (rawContent) autoAnalyze();
-});
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
 
 function loadFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
-    rawContent = e.target.result;
     document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = formatBytes(file.size);
-    document.getElementById('fileChosen').classList.add('visible');
-
-    // Auto-detect filename for output
-    const base = file.name.replace(/\.[^.]+$/, '');
-    document.getElementById('outputName').value = base + '-reordered.txt';
-
-    document.getElementById('btnParse').disabled = false;
-    autoDetect();
-    autoAnalyze();
+    document.getElementById('fileInfo').classList.add('visible');
+    parseFile(e.target.result);
   };
-  reader.readAsText(file, 'latin1'); // Support CP1252 from older Windows apps
+  reader.readAsText(file, 'latin1');
 }
 
-// ── Auto-detect format ────────────────────────────────────────────────────────
+// ── Parsing ───────────────────────────────────────────────────────────────────
 
-function autoDetect() {
-  const hasFF = rawContent.includes('\f');
-  const dashLines = (rawContent.match(/^-{5,}/m) || []).length;
-  const blankLines = rawContent.split('\n\n').length - 1;
+function parseFile(content) {
+  parsedSections = [];
+  const lines = content.split(/\r?\n/);
+  let currentSection = null;
 
-  const sel = document.getElementById('separatorType');
-  if (hasFF) {
-    sel.value = 'formfeed_page';
-  } else if (dashLines > 2) {
-    sel.value = 'dashes';
-  } else if (blankLines > 2) {
-    sel.value = 'blankline';
-  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
 
-  document.getElementById('linesPerSlipField').style.display = 'none';
-}
+    // Detect section header: "Pairings for Round X. ..."
+    const headerMatch = line.match(/^Pairings for (Round \d+)\.\s*(.+)$/i);
+    if (headerMatch) {
+      if (currentSection) parsedSections.push(currentSection);
+      currentSection = {
+        round: headerMatch[1],
+        name: headerMatch[2].trim(),
+        pairings: [],
+        byes: []
+      };
+      continue;
+    }
 
-// ── Parsing ──────────────────────────────────────────────────────────────────
+    if (!currentSection) continue;
 
-function splitIntoSlips(content) {
-  const mode = document.getElementById('separatorType').value;
-  const slipsPerPage = parseInt(document.getElementById('slipsPerPage').value) || 5;
-  let slips = [];
+    // Skip the column header row
+    if (line.match(/^Bd\s+Team\s+Res/)) continue;
 
-  if (mode === 'formfeed_page') {
-    // Form feeds split pages; we divide each page into N equal slip sections
-    const pages = content.split('\f').map(p => p.replace(/\n+$/, ''));
-    const validPages = pages.filter(p => p.trim().length > 0);
-    for (const page of validPages) {
-      const lines = page.split('\n');
-      // Remove trailing empty lines
-      while (lines.length && !lines[lines.length-1].trim()) lines.pop();
-      const linesPerSlip = Math.floor(lines.length / slipsPerPage);
-      for (let i = 0; i < slipsPerPage; i++) {
-        const start = i * linesPerSlip;
-        const end = i === slipsPerPage - 1 ? lines.length : start + linesPerSlip;
-        const slipLines = lines.slice(start, end);
-        slips.push(slipLines.join('\n'));
+    // Skip blank lines
+    if (!line.trim()) continue;
+
+    // Parse pairing rows
+    // Format: Bd\tTeam\tRes\tWhite\tTeam\tRes\tBlack
+    const parts = line.split('\t');
+
+    // Numbered board row: starts with a number
+    const bdMatch = parts[0].trim().match(/^(\d+)$/);
+    if (bdMatch) {
+      const bd = parseInt(bdMatch[1]);
+      const whiteName = (parts[3] || '').trim();
+      const blackName = (parts[6] || '').trim();
+      const whiteTeam = (parts[1] || '').trim();
+      const blackTeam = (parts[4] || '').trim();
+      const whiteRes = (parts[2] || '').trim();
+      const blackRes = (parts[5] || '').trim();
+
+      // Extract score from name "(X.X)" at end
+      const extractScore = str => {
+        const m = str.match(/\(([0-9.]+)\)\s*$/);
+        return m ? { name: str.replace(/\s*\([0-9.]+\)\s*$/, '').trim(), score: m[1] } : { name: str, score: '' };
+      };
+
+      const white = extractScore(whiteName);
+      const black = extractScore(blackName);
+
+      currentSection.pairings.push({
+        bd, 
+        white: { team: whiteTeam, name: white.name, score: white.score, result: whiteRes },
+        black: { team: blackTeam, name: black.name, score: black.score, result: blackRes }
+      });
+      continue;
+    }
+
+    // BYE rows (no board number, just team + player + BYE)
+    if (parts[0].trim() === '' && line.includes('BYE')) {
+      const team = (parts[1] || '').trim();
+      const playerRaw = (parts[3] || '').trim();
+      const extractScore = str => {
+        const m = str.match(/\(([0-9.]+)\)\s*$/);
+        return m ? { name: str.replace(/\s*\([0-9.]+\)\s*$/, '').trim(), score: m[1] } : { name: str, score: '' };
+      };
+      const player = extractScore(playerRaw);
+      if (team || player.name) {
+        currentSection.byes.push({ team, name: player.name, score: player.score });
       }
     }
-  } else if (mode === 'blankline') {
-    slips = content.split(/\n{2,}/).map(s => s.trim()).filter(s => s.length > 0);
-  } else if (mode === 'dashes') {
-    slips = content.split(/^-{5,}.*$/m).map(s => s.trim()).filter(s => s.length > 0);
-  } else if (mode === 'fixedlines') {
-    const linesPerSlip = parseInt(document.getElementById('linesPerSlip').value) || 10;
-    const allLines = content.split('\n');
-    for (let i = 0; i < allLines.length; i += linesPerSlip) {
-      const chunk = allLines.slice(i, i + linesPerSlip);
-      if (chunk.some(l => l.trim())) {
-        slips.push(chunk.join('\n'));
-      }
-    }
   }
 
-  return slips;
+  if (currentSection) parsedSections.push(currentSection);
+
+  renderSectionList();
 }
 
-function getSeparator() {
-  const mode = document.getElementById('separatorType').value;
-  if (mode === 'formfeed_page') return '\f';
-  if (mode === 'blankline') return '\n\n';
-  if (mode === 'dashes') return '\n' + '-'.repeat(60) + '\n';
-  return '\n';
+function renderSectionList() {
+  const container = document.getElementById('sectionList');
+  if (!parsedSections.length) {
+    container.innerHTML = '<p style="color:#c00;font-size:13px;">No sections found. Check file format.</p>';
+    return;
+  }
+
+  container.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'section-list';
+
+  parsedSections.forEach((sec, i) => {
+    const item = document.createElement('div');
+    item.className = 'section-item';
+    item.innerHTML = `
+      <input type="checkbox" id="sec_${i}" checked>
+      <label for="sec_${i}">
+        <div class="sec-name">${sec.name}</div>
+        <div class="sec-meta">${sec.round} · ${sec.pairings.length} boards${sec.byes.length ? ` · ${sec.byes.length} bye(s)` : ''}</div>
+      </label>
+      <span class="sec-badge">${sec.pairings.length}</span>
+    `;
+    list.appendChild(item);
+  });
+
+  container.appendChild(list);
+
+  const total = parsedSections.reduce((s, sec) => s + sec.pairings.length, 0);
+  setStatus('parseStatus', 'ok', `✓ Found ${parsedSections.length} section(s) — ${total} total boards.`);
+  document.getElementById('btnGenerate').disabled = false;
 }
 
-function reorderSlips(slips, slipsPerPage) {
-  const totalSlips = slips.length;
-  const numPages = Math.ceil(totalSlips / slipsPerPage);
-  // We have numPages "old pages". New page k (0-indexed) gets:
-  //   slip k, slip k+numPages, slip k+2*numPages, ..., slip k+(slipsPerPage-1)*numPages
-  const newSlips = [];
+// ── Slip generation & reorder ─────────────────────────────────────────────────
+
+function generateSlips() {
+  const slipsPerPage = parseInt(document.getElementById('slipsPerPage').value);
+  const tourneyOverride = document.getElementById('tourneyName').value.trim();
+  const roundOverride = document.getElementById('roundOverride').value.trim();
+
+  // Gather selected sections and flatten all pairings in order
+  const selected = parsedSections.filter((_, i) =>
+    document.getElementById(`sec_${i}`)?.checked
+  );
+
+  if (!selected.length) {
+    setStatus('genStatus', 'err', 'Please select at least one section.');
+    return;
+  }
+
+  // Build flat slip list across all selected sections
+  let allSlips = [];
+  selected.forEach(sec => {
+    const round = roundOverride || sec.round;
+    const sectionName = sec.name;
+    const tourneyName = tourneyOverride || extractTourney(sectionName);
+
+    sec.pairings.forEach(p => {
+      allSlips.push({ sec: sectionName, round, tourney: tourneyName, pairing: p });
+    });
+
+    // Append byes as a note (optional — byes don't need a slip normally)
+  });
+
+  // Reorder slips: transpose so stacking gives consecutive boards
+  const numSlips = allSlips.length;
+  const numPages = Math.ceil(numSlips / slipsPerPage);
+
+  // Build reordered slip sequence
+  // New page k (0-indexed) gets slips at indices: k, k+numPages, k+2*numPages, ...
+  const reorderedSlips = [];
   for (let k = 0; k < numPages; k++) {
     const pageSlips = [];
     for (let row = 0; row < slipsPerPage; row++) {
       const idx = k + row * numPages;
-      if (idx < totalSlips) {
-        pageSlips.push(slips[idx]);
-      }
+      if (idx < numSlips) pageSlips.push(allSlips[idx]);
     }
-    newSlips.push(pageSlips);
+    reorderedSlips.push(pageSlips);
   }
-  return newSlips; // array of pages, each page is array of slip texts
+
+  renderPages(reorderedSlips, slipsPerPage, numSlips, numPages);
+  setStatus('genStatus', 'ok', `✓ Generated ${numSlips} slips across ${numPages} pages. Ready to print.`);
+  document.getElementById('btnPrint').disabled = false;
 }
 
-function autoAnalyze() {
-  try {
-    const slips = splitIntoSlips(rawContent);
-    const slipsPerPage = parseInt(document.getElementById('slipsPerPage').value) || 5;
-    const numPages = Math.ceil(slips.length / slipsPerPage);
+function extractTourney(sectionName) {
+  // Remove section suffix like ": K-12 Open" to get base tourney name
+  // The file has format "Turkey Tango 2025: K-12 Open"
+  const m = sectionName.match(/^(.+?)(?::\s*.+)?$/);
+  return m ? m[1].trim() : sectionName;
+}
 
-    document.getElementById('statPages').textContent = numPages;
-    document.getElementById('statSlips').textContent = slips.length;
-    document.getElementById('statRounds').textContent = slipsPerPage;
-    document.getElementById('statsBar').style.display = 'flex';
+function renderPages(pages, slipsPerPage, totalSlips, totalPages) {
+  const pagesDiv = document.getElementById('pages');
+  pagesDiv.innerHTML = '';
 
-    parsedSlips = slips;
-    setStatus('success', `✓ Detected ${slips.length} slips across ${numPages} pages. Ready to reorder.`);
-  } catch(e) {
-    setStatus('error', '✗ Parse error: ' + e.message);
+  document.getElementById('previewLabel').textContent =
+    `${totalSlips} slips · ${totalPages} pages · ${slipsPerPage} per page`;
+
+  pages.forEach((pageSlips, pi) => {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'print-page';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'page-label';
+    lbl.textContent = `PAGE ${pi + 1} / ${totalPages}`;
+    pageDiv.appendChild(lbl);
+
+    pageSlips.forEach(slip => {
+      pageDiv.appendChild(renderSlip(slip));
+    });
+
+    pagesDiv.appendChild(pageDiv);
+  });
+
+  const printArea = document.getElementById('printArea');
+  printArea.style.display = 'block';
+  printArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSlip(slip) {
+  const p = slip.pairing;
+  const div = document.createElement('div');
+  div.className = 'slip';
+
+  // Section name — strip tourney prefix for brevity
+  const secShort = slip.sec.replace(/^.+?:\s*/, '');
+
+  div.innerHTML = `
+    <div class="slip-header">
+      <span class="slip-title">${slip.round} · ${secShort}</span>
+      <span class="slip-board">Board ${p.bd}</span>
+    </div>
+    <div class="slip-players">
+      ${renderPlayerRow('W', p.white)}
+      ${renderPlayerRow('B', p.black)}
+    </div>
+  `;
+  return div;
+}
+
+function renderPlayerRow(color, player) {
+  if (!player.name) {
+    return `<div class="slip-row"><span class="slip-color">${color}</span><span class="slip-bye" style="grid-column:2/-1">— BYE —</span></div>`;
   }
+  return `
+    <div class="slip-row">
+      <span class="slip-color">${color}</span>
+      <span class="slip-team">${player.team || '—'}</span>
+      <span class="slip-name">${player.name}</span>
+      <span class="slip-score">(${player.score})</span>
+      <span class="slip-result-box"></span>
+    </div>
+  `;
 }
 
-function parseFile() {
-  if (!rawContent) return;
-  try {
-    parsedSlips = splitIntoSlips(rawContent);
-    const slipsPerPage = parseInt(document.getElementById('slipsPerPage').value) || 5;
-    const numPages = Math.ceil(parsedSlips.length / slipsPerPage);
-
-    if (parsedSlips.length === 0) {
-      setStatus('error', '✗ No slips found. Try a different separator setting.');
-      return;
-    }
-
-    document.getElementById('statPages').textContent = numPages;
-    document.getElementById('statSlips').textContent = parsedSlips.length;
-    document.getElementById('statRounds').textContent = slipsPerPage;
-    document.getElementById('statsBar').style.display = 'flex';
-
-    // Build reordered content
-    const reordered = reorderSlips(parsedSlips, slipsPerPage);
-    const sep = getSeparator();
-
-    let lines = [];
-    for (let p = 0; p < reordered.length; p++) {
-      lines.push(reordered[p].join(sep === '\f' ? '\n' : sep));
-      if (p < reordered.length - 1) lines.push(sep === '\f' ? '\f' : '');
-    }
-    reorderedContent = sep === '\f'
-      ? reordered.map(page => page.join('\n')).join('\f')
-      : reordered.map(page => page.join('\n' + sep.trim() + '\n')).join('\n' + sep.trim() + '\n');
-
-    // Show preview
-    showPreview(parsedSlips, reordered, slipsPerPage);
-    document.getElementById('btnDownload').disabled = false;
-    setStatus('success', `✓ Reordered ${parsedSlips.length} slips into ${reordered.length} new pages. Click Download to save.`);
-  } catch(e) {
-    setStatus('error', '✗ Error: ' + e.message);
-  }
-}
-
-function showPreview(slips, reordered, slipsPerPage) {
-  const previewCard = document.getElementById('previewCard');
-  previewCard.style.display = 'block';
-
-  // Original: show first 2 pages worth of slips
-  const origSlices = slips.slice(0, slipsPerPage * 2);
-  let origText = '';
-  for (let i = 0; i < origSlices.length; i++) {
-    if (i % slipsPerPage === 0) {
-      origText += `── PAGE ${Math.floor(i/slipsPerPage)+1} ─────────────\n`;
-    }
-    origText += `[Slip ${i+1}]\n`;
-    origText += truncateSlip(origSlices[i]) + '\n\n';
-  }
-  document.getElementById('previewOrig').textContent = origText;
-
-  // Reordered: show first 2 pages
-  let newText = '';
-  for (let p = 0; p < Math.min(2, reordered.length); p++) {
-    newText += `── NEW PAGE ${p+1} ──────────────\n`;
-    for (let j = 0; j < reordered[p].length; j++) {
-      const origIdx = slips.indexOf(reordered[p][j]);
-      newText += `[Was slip ${origIdx+1}]\n`;
-      newText += truncateSlip(reordered[p][j]) + '\n\n';
-    }
-  }
-  document.getElementById('previewNew').textContent = newText;
-}
-
-function truncateSlip(text) {
-  const lines = text.split('\n').slice(0, 4);
-  return lines.join('\n') + (text.split('\n').length > 4 ? '\n  ...' : '');
-}
-
-function downloadFile() {
-  if (!reorderedContent) { parseFile(); if (!reorderedContent) return; }
-  const name = document.getElementById('outputName').value || 'pairings-reordered.txt';
-  const blob = new Blob([reorderedContent], { type: 'text/plain;charset=latin1' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function setStatus(type, msg) {
-  const el = document.getElementById('parseStatus');
-  el.className = 'parse-status ' + type;
+function setStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'status ' + type;
   el.textContent = msg;
-}
-
-function formatBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  return (b/1048576).toFixed(1) + ' MB';
 }
 </script>
 </body>
