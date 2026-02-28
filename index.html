@@ -915,10 +915,11 @@ function generateSlips() {
         const idx = k + row * numPages;
         if (idx < numSlips) pg.push(slips[idx]);
       }
-      // Render page
+      // Pad page to full slipsPerPage with blank placeholders so cut lines align
+      while (pg.length < slipsPerPage) pg.push(null);
       const pageDiv = document.createElement('div');
       pageDiv.className = 'print-page';
-      pg.forEach(slip => pageDiv.appendChild(renderSlip(slip, slipH)));
+      pg.forEach(slip => pageDiv.appendChild(slip ? renderSlip(slip) : renderBlankSlip()));
       pagesDiv.appendChild(pageDiv);
     }
 
@@ -1029,7 +1030,15 @@ function renderResultsSheet(sec, roundLabel) {
   return page;
 }
 
-function renderSlip(slip, slipH) {
+function renderBlankSlip() {
+  const div = document.createElement('div');
+  div.className = 'slip';
+  div.style.background = '#fafafa';
+  // Empty — keeps cut lines aligned
+  return div;
+}
+
+function renderSlip(slip) {
   const p = slip.pairing;
   const secShort = slip.sec.replace(/^.+?:\s*/, '');
 
