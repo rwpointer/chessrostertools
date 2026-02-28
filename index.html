@@ -931,10 +931,12 @@ function generateSlips() {
       totalPages++;
     }
 
-    // Alpha lookup sheet for this section
+    // Alpha lookup sheet for this section (may be multiple pages)
     if (includeAlpha) {
+      const alphaPlayers = sec.pairings.length * 2 + sec.byes.length;
+      const alphaPageCount = Math.ceil(alphaPlayers / 40);
       pagesDiv.appendChild(renderAlphaSheet(sec, roundLabel));
-      totalPages++;
+      totalPages += alphaPageCount;
     }
   });
 
@@ -1129,51 +1131,64 @@ function renderAlphaSheet(sec, roundLabel) {
     return lastName(a.name).localeCompare(lastName(b.name));
   });
 
-  const page = document.createElement('div');
-  page.className = 'alpha-page';
+  // ~40 rows fit safely per page (page 10.6in minus header/footer/col-header overhead)
+  const ROWS_PER_PAGE = 40;
+  const totalPages = Math.ceil(players.length / ROWS_PER_PAGE);
 
-  page.innerHTML = `
-    <div class="alpha-header">
-      <div class="alpha-title">${secShort} — Player Lookup</div>
-      <div class="alpha-meta">
-        ${tourneyName}<br>
-        ${roundLabel} · Alphabetical by Last Name
-        ${timeControl ? `<br><strong>Time Control: ${timeControl}</strong>` : ''}
+  // Return a fragment containing one or more pages
+  const fragment = document.createDocumentFragment();
+
+  for (let pg = 0; pg < totalPages; pg++) {
+    const chunk = players.slice(pg * ROWS_PER_PAGE, (pg + 1) * ROWS_PER_PAGE);
+    const pageLabel = totalPages > 1 ? ` (${pg + 1} of ${totalPages})` : '';
+
+    const page = document.createElement('div');
+    page.className = 'alpha-page';
+
+    page.innerHTML = `
+      <div class="alpha-header">
+        <div class="alpha-title">${secShort} — Player Lookup${pageLabel}</div>
+        <div class="alpha-meta">
+          ${tourneyName}<br>
+          ${roundLabel} · Alphabetical by Last Name
+          ${timeControl ? `<br><strong>Time Control: ${timeControl}</strong>` : ''}
+        </div>
       </div>
-    </div>
-  `;
+    `;
 
-  const columns = document.createElement('div');
-  columns.className = 'alpha-columns';
+    const columns = document.createElement('div');
+    columns.className = 'alpha-columns';
 
-  // Single header row
-  const hdr = document.createElement('div');
-  hdr.className = 'alpha-col-header';
-  hdr.innerHTML = `<span>Player (Team)</span><span>Assignment</span>`;
-  columns.appendChild(hdr);
+    // Column header
+    const hdr = document.createElement('div');
+    hdr.className = 'alpha-col-header';
+    hdr.innerHTML = `<span>Player (Team)</span><span>Assignment</span>`;
+    columns.appendChild(hdr);
 
-  players.forEach(player => {
-    const row = document.createElement('div');
-    row.className = 'alpha-row';
+    chunk.forEach(player => {
+      const row = document.createElement('div');
+      row.className = 'alpha-row';
 
-    const nameTeam = `<span class="alpha-name">${player.name}</span>${player.team ? ` <span class="alpha-team">${player.team}</span>` : ''}`;
+      const nameTeam = `<span class="alpha-name">${player.name}</span>${player.team ? ` <span class="alpha-team">${player.team}</span>` : ''}`;
 
-    let assignment = '';
-    if (player.bd === null) {
-      assignment = `<span class="alpha-bye-tag">BYE</span>`;
-    } else {
-      const colorClass = player.color === 'White' ? 'alpha-color-w' : 'alpha-color-b';
-      assignment = `<span class="alpha-assignment">Board <strong>${player.bd}</strong> · <span class="${colorClass}">${player.color}</span></span>`;
-    }
+      let assignment = '';
+      if (player.bd === null) {
+        assignment = `<span class="alpha-bye-tag">BYE</span>`;
+      } else {
+        const colorClass = player.color === 'White' ? 'alpha-color-w' : 'alpha-color-b';
+        assignment = `<span class="alpha-assignment">Board <strong>${player.bd}</strong> · <span class="${colorClass}">${player.color}</span></span>`;
+      }
 
-    row.innerHTML = `<div>${nameTeam}</div>${assignment}`;
-    columns.appendChild(row);
-  });
+      row.innerHTML = `<div>${nameTeam}</div>${assignment}`;
+      columns.appendChild(row);
+    });
 
-  page.appendChild(columns);
-  page.innerHTML += `<div class="results-footer-note">RoundReady · The TD Toolkit · Richard Pointer · IO IA</div>`;
+    page.appendChild(columns);
+    page.innerHTML += `<div class="results-footer-note">RoundReady · The TD Toolkit · Richard Pointer · IO IA</div>`;
+    fragment.appendChild(page);
+  }
 
-  return page;
+  return fragment;
 }
 
 function setStatus(id, type, msg) {
